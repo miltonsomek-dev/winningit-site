@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+
+
+
+<style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+      font-size: 25px;
+      font-weight: bold;
+      color: rgb(230, 255, 2);
+      
+      background-color: #3bc917;
+      overflow: hidden;
+      position: relative;
+      z-index: 2;
+    }
+
+    .dollar-sign {
+      position: absolute;
+      color: rgb(0, 0, 0);
+      font-size: 100px;
+      font-weight: bold;
+      pointer-events: none;
+      z-index: -5;
+    }
+
+    input[type="number"],
+    button {
+      margin: 10px;
+      z-index: 1;
+    }
+
+    button {
+      padding: 10px;
+      font-size: 16px;
+    }
+
+    #balance {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    #messageBox {
+      display: none;
+      margin-top: 30px;
+      padding: 30px;
+      border: 2px solid #333;
+      border-radius: 10px;
+      width: 80%;
+      max-width: 400px;
+      font-size: 18px;
+      background-color: #f0f0f0;
+      color: #333;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      word-wrap: break-word;
+    }
+
+    #messageBox.success {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    #messageBox.error {
+      background-color: #F44336;
+      color: white;
+    }
+
+    #luckMeterContainer {
+      position: fixed;
+      top: 20%;
+      right: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 2;
+    }
+
+    #luckMeterLabel {
+      color: white;
+      font-size: 22px;
+      margin-bottom: 10px;
+    }
+
+    #luckMeter {
+      width: 30px;
+      height: 400px;
+      background-color: #f3f5f3;
+      border-radius: 15px;
+      overflow: hidden;
+    }
+
+    #luckMeterFill {
+      width: 100%;
+      height: 0;
+      background-color: rgb(177, 124, 20);
+      transition: height 0.2s ease-out;
+    }
+
+    #shopContainer {
+      display: none;
+      position: fixed;
+      top: 10%;
+      left: 60%;
+      width: 60%;
+      max-width: 400px;
+      padding: 20px;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      z-index: 3;
+    }
+
+    #shopContainer h2 {
+      margin-top: 0;
+    }
+
+    #inventory {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+
+    #shopItems button {
+      margin: 10px;
+      padding: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+
+    /* Tree Display Container */
+    #treeDisplay {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      max-width: 150px;
+      max-height: 150px;
+      overflow-y: auto;
+      z-index: 4;
+    }
+
+    .tree-icon {
+      font-size: 40px;
+    }
+
+    #diamondDisplay {
+      position: fixed;
+      bottom: 100px;
+      right: 100px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      max-width: 150px;
+      max-height: 150px;
+      overflow-y: auto;
+      z-index: 4;
+    }
+
+    .diamond-icon {
+      font-size: 40px;
+    }
+  </style>
+
+<title>WinningIt</title>
+<meta content="A fun game to play and win" name="description"/>
+<meta content="win, fun, game, cool, awesome" name="keywords"/>
+<link href="https://winningit.com" rel="canonical"/>
+<meta content="WinningIt" property="og:title"/>
+<meta content="A fun game to play and win" property="og:description"/>
+<meta content="website" property="og:type"/>
+<meta content="https://winningit.com" property="og:url"/>
+<script defer="true" type="application/ld+json">{"@context": "https://schema.org", "@type": "WebPage", "url": "https://winningit.com", "name": "WinningIt", "description": "A fun game to play and win", "keywords": "win, fun, game, cool, awesome"}</script>
+</head>
+<body>
+<h1>WinningIt</h1>
+<p>Your balance: <span id="balance">100</span> Good luck!</p>
+<p>Enter 1, 2 or 3:</p>
+<input id="numberInput" max="3" min="1" type="number"/>
+<button id="submitNumberBtn" onclick="enablePushButton()">Submit</button>
+<br/><br/>
+<label for="betAmount">Bet (1 to 1,000,000):</label>
+<input id="betAmount" max="1,000,000" min="1" type="number"/>
+<br/><br/>
+<button disabled="" id="pushBtn" onclick="showRandomNumber()">Push</button>
+<p id="randomNumber"></p>
+<button id="resetBtn" onclick="resetGame()" style="display: none;">Reset</button>
+<div id="messageBox"></div>
+<div id="luckMeterContainer">
+<div id="luckMeterLabel">Bonus Meter</div>
+<div id="luckMeter">
+<div id="luckMeterFill"></div>
+</div>
+</div>
+<button id="shopBtn" onclick="toggleShop()">Shop</button>
+<div id="shopContainer">
+<h2>Shop</h2>
+<div id="shopItems">
+<button onclick="buyItem('tree')">Trees - 35</button>
+<button onclick="buyItem('diamond')">Diamonds - 100,000</button>
+</div>
+<div id="inventory">
+<h3>Inventory</h3>
+<p>Trees: <span id="treeCount">0</span>/3</p>
+<p>Diamonds: <span id="diamondCount">0</span>/3</p>
+</div>
+<button onclick="toggleShop()">Close Shop</button>
+</div>
+<!-- Tree Display -->
+<div id="treeDisplay"></div>
+<div id="diamondDisplay"></div>
+<script defer="true">
+    let balance = 100;
+    let userNumber = 0;
+    let betAmount = 0;
+    let luckPercentage = 0;
+    let inventory = { tree: 0, diamond: 0 };
+
+    function generateDollarSigns() {
+      for (let i = 0; i < 100; i++) {
+        const dollarSign = document.createElement('span');
+        dollarSign.textContent = '$';
+        dollarSign.classList.add('dollar-sign');
+        dollarSign.style.left = `${Math.random() * window.innerWidth}px`;
+        dollarSign.style.top = `${Math.random() * window.innerHeight}px`;
+        document.body.appendChild(dollarSign);
+      }
+    }
+
+    function enablePushButton() {
+      const numberInput = document.getElementById('numberInput').value;
+      const betInput = document.getElementById('betAmount').value;
+      const pushBtn = document.getElementById('pushBtn');
+
+      if (numberInput >= 1 && numberInput <= 3) {
+        userNumber = parseInt(numberInput, 10);
+        if (betInput >= 1 && betInput <= 1000000 && betInput <= balance) {
+          betAmount = parseInt(betInput, 10);
+          pushBtn.disabled = false;
+        } else if (betInput > balance) {
+          showMessage('You do not have enough balance to make this bet.', 'error');
+          pushBtn.disabled = true;
+        } else {
+          showMessage('Please enter a valid bet amount between 1 and 1,000,000.', 'error');
+          pushBtn.disabled = true;
+        }
+      } else {
+        showMessage('Please enter a valid number 1, 2 or 3!', 'error');
+        pushBtn.disabled = true;
+      }
+    }
+
+    function showRandomNumber() {
+      const randomNumber = Math.floor(Math.random() * 3) + 1;
+      document.getElementById('randomNumber').textContent = `Random Number: ${randomNumber}`;
+
+      if (userNumber === randomNumber) {
+        balance += (betAmount * 20) + parseInt(luckPercentage);
+        showMessage(`You guessed correctly! You win ${betAmount * 20} + Bonus! Great job!`, 'success');
+      } else {
+        balance -= betAmount;
+        showMessage(`Incorrect guess! You lose ${betAmount}. You suck!`, 'error');
+      }
+
+      document.getElementById('balance').textContent = balance;
+      document.getElementById('pushBtn').disabled = true;
+      document.getElementById('resetBtn').style.display = 'inline-block';
+
+      if (balance <= 0) {
+        showMessage('Game Over! You have run out of money.', 'error');
+        document.getElementById('pushBtn').disabled = true;
+      }
+    }
+
+    function showMessage(message, type) {
+      const messageBox = document.getElementById('messageBox');
+      messageBox.textContent = message;
+      messageBox.className = type;
+      messageBox.style.display = 'block';
+    }
+
+    function resetGame() {
+      balance = 100;
+      document.getElementById('numberInput').value = '';
+      document.getElementById('betAmount').value = '';
+      document.getElementById('randomNumber').textContent = '';
+      document.getElementById('balance').textContent = balance;
+      document.getElementById('pushBtn').disabled = true;
+      document.getElementById('resetBtn').style.display = 'none';
+      document.getElementById('messageBox').style.display = 'none';
+      showMessage('', '');
+
+      const dollarSigns = document.querySelectorAll('.dollar-sign');
+      dollarSigns.forEach(sign => sign.remove());
+      generateDollarSigns();
+    }
+
+    function toggleShop() {
+      const shopContainer = document.getElementById('shopContainer');
+      shopContainer.style.display = shopContainer.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function buyItem(item) {
+      const itemPrices = { tree: 35, diamond: 100000 };
+      let limit = 3;
+
+      if (balance >= itemPrices[item] && inventory[item] <3) {
+        balance -= itemPrices[item];
+        inventory[item] += 1;
+        document.getElementById('balance').textContent = balance;
+        document.getElementById(`${item}Count`).textContent = inventory[item];
+        showMessage(`You bought 1 ${item}!`, 'success');
+
+        if (item === 'tree') {
+          const treeDisplay = document.getElementById('treeDisplay');
+          const treeIcon = document.createElement('span');
+          treeIcon.className = 'tree-icon';
+          treeIcon.textContent = '🌳';
+          treeDisplay.appendChild(treeIcon);
+        }
+        else if (item === 'diamond') {
+          const diamondDisplay = document.getElementById('diamondDisplay');
+          const diamondIcon = document.createElement('span');
+          diamondIcon.className = 'diamond-icon';
+          diamondIcon.textContent = '💎';
+          diamondDisplay.appendChild(diamondIcon);
+        }
+      } else if(inventory[item] >= 3){
+        showMessage('The limit is 3 per item')
+      }
+       else {
+        showMessage(`You don't have enough balance to buy ${item}.`, 'error');
+      }
+    }
+
+    function updateLuckMeter() {
+      const luckMeterFill = document.getElementById('luckMeterFill');
+      luckPercentage = Math.random() * 100;
+      luckMeterFill.style.height = `${luckPercentage }%`;
+    }
+
+    window.onload = function () {
+      generateDollarSigns();
+      setInterval(updateLuckMeter, 100);
+    };
+  </script>
+</body>
+</html>
