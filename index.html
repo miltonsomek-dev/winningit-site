@@ -268,7 +268,7 @@
         showMessage(`You guessed correctly! You win ${betAmount * 20} + Bonus! Great job!`, 'success');
       } else {
         balance -= betAmount;
-        showMessage(`Incorrect guess! You lose ${betAmount}. You suck!`, 'error');
+        showMessage(`Incorrect guess! You lose ${betAmount}.`, 'error');
       }
 
       document.getElementById('balance').textContent = balance;
@@ -355,3 +355,4 @@
   </script>
 </body>
 </html>
+
